@@ -1,0 +1,12 @@
+# Local shell configuration backups are private.
+/backups/
+
+# Python and temporary test files.
+__pycache__/
+*.py[cod]
+.venv/
+/.tmp/
+
+# Local credentials and environment settings.
+.env
+.env.*
