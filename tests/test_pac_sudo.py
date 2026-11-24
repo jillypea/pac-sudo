@@ -176,6 +176,7 @@ class TerminalTests(unittest.TestCase):
         b"|[:::']",   # Nyan
         b"\xe2\x96\x80", # Half-block top (Ghost, Alien, Zelda)
         b"\xe2\x96\x84", # Half-block bottom
+        b"\x1b_Gf=100",  # Kitty image escape header (Alohomora)
     ]
 
     def assertAnimated(self, output):

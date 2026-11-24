@@ -3,9 +3,11 @@
 
 from __future__ import annotations
 
+import base64
 import contextlib
 from dataclasses import dataclass
 import getpass
+import io
 import os
 from pathlib import Path
 import random
@@ -216,6 +218,82 @@ ALIEN_THEME = {
     "pellet": "▪",
 }
 
+def generate_alohomora_frames():
+    try:
+        from PIL import Image, ImageDraw
+    except ImportError:
+        return []
+
+    frames = []
+    GOLD = (218, 165, 32)
+    GOLD_HIGHLIGHT = (255, 215, 0)
+    DARK = (30, 30, 30)
+    SILVER = (192, 192, 192)
+    CYAN_SPARK = (120, 220, 255)
+    WHITE_GLOW = (255, 255, 255)
+    WAND_WOOD = (139, 69, 19)
+
+    for step in range(7):
+        img = Image.new("RGBA", (130, 80), (0, 0, 0, 0))
+        d = ImageDraw.Draw(img)
+
+        # Wand entering from left
+        wand_x = 10 + step * 4
+        wand_y = 45 - step
+        d.line([(wand_x - 30, wand_y + 15), (wand_x, wand_y)], fill=WAND_WOOD, width=3)
+
+        # Lock body
+        lx, ly = 70, 38
+        d.rectangle([lx, ly, lx + 36, ly + 32], fill=GOLD, outline=GOLD_HIGHLIGHT, width=2)
+        # Keyhole
+        d.ellipse([lx + 15, ly + 10, lx + 21, ly + 16], fill=DARK)
+        d.polygon([(lx + 16, ly + 14), (lx + 20, ly + 14), (lx + 22, ly + 24), (lx + 14, ly + 24)], fill=DARK)
+
+        if step < 4:
+            # Locked shackle
+            d.arc([lx + 6, ly - 20, lx + 30, ly + 8], 180, 0, fill=SILVER, width=5)
+            if step >= 2:
+                # Magic sparks from wand tip
+                for offset in [(-3, -4), (4, -2), (2, 5), (-2, 6)]:
+                    d.point((wand_x + offset[0] + 5, wand_y + offset[1]), fill=CYAN_SPARK)
+        else:
+            # Shackle popping up and swinging open!
+            lift = (step - 3) * 4
+            d.arc([lx + 2, ly - 24 - lift, lx + 26, ly + 4 - lift], 160, 340, fill=WHITE_GLOW, width=5)
+            # Magic burst
+            burst_r = (step - 3) * 6
+            d.ellipse([lx + 18 - burst_r, ly + 14 - burst_r, lx + 18 + burst_r, ly + 14 + burst_r],
+                      outline=CYAN_SPARK, width=2)
+            d.text((lx - 20, 5), "Alohomora!", fill=CYAN_SPARK)
+
+        buf = io.BytesIO()
+        img.save(buf, format="PNG")
+        frames.append(buf.getvalue())
+    return frames
+
+
+def kitty_image_escape(png_bytes: bytes) -> str:
+    b64 = base64.b64encode(png_bytes).decode("ascii")
+    chunks = []
+    chunk_size = 4096
+    for i in range(0, len(b64), chunk_size):
+        chunk = b64[i : i + chunk_size]
+        is_last = (i + chunk_size) >= len(b64)
+        m = 0 if is_last else 1
+        if i == 0:
+            chunks.append(f"\x1b_Gf=100,a=T,m={m};{chunk}\x1b\\")
+        else:
+            chunks.append(f"\x1b_Gm={m};{chunk}\x1b\\")
+    return "".join(chunks)
+
+
+ALOHOMORA_FRAMES = generate_alohomora_frames()
+
+ALOHOMORA_THEME = {
+    "name": "alohomora",
+    "special": "kitty_image",
+}
+
 ZELDA_THEME = {
     "name": "zelda",
     "special": "master_sword",
@@ -232,6 +310,8 @@ THEMES = [
     ALIEN_THEME,
     ZELDA_THEME,
 ]
+if ALOHOMORA_FRAMES:
+    THEMES.append(ALOHOMORA_THEME)
 
 
 @dataclass
@@ -390,6 +470,20 @@ def animate(tty, length: int, duration: float = 1.05, theme: dict | None = None)
     tty.write("\x1b[?25l" + "\n" * 4)
     tty.flush()
     try:
+        if chosen.get("name") == "alohomora" and ALOHOMORA_FRAMES:
+            steps = len(ALOHOMORA_FRAMES)
+            delay = duration / steps
+            for step, frame in enumerate(ALOHOMORA_FRAMES):
+                escape = kitty_image_escape(frame)
+                tty.write("\x1b[4A")
+                tty.write("\r\x1b[2K" + escape + "\n")
+                tty.write("\r\x1b[2K" + "\n")
+                tty.write("\r\x1b[2K" + "\n")
+                tty.write("\r\x1b[2K" + "\n")
+                tty.flush()
+                time.sleep(delay)
+            return
+
         if chosen.get("name") == "zelda":
             steps = count + 1
             delay = duration / steps
