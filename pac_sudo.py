@@ -588,14 +588,25 @@ def main(arguments: list[str] | None = None) -> int:
     arguments = sys.argv[1:] if arguments is None else arguments
     if Path(sys.argv[0]).name == "pac-sudo-askpass":
         return askpass(arguments[0] if arguments else "[sudo] Password: ")
-    if arguments == ["--demo"]:
+    if arguments and arguments[0] == "--demo":
         tty = terminal()
         if tty is None:
             print("pac-sudo: open a terminal to see the demo.", file=sys.stderr)
             return 1
+        theme_name = arguments[1] if len(arguments) > 1 else None
+        chosen_theme = None
+        if theme_name:
+            for t in THEMES:
+                if t["name"].lower() == theme_name.lower():
+                    chosen_theme = t
+                    break
+            if not chosen_theme:
+                print(f"pac-sudo: unknown theme '{theme_name}'. Available: {', '.join(t['name'] for t in THEMES)}", file=sys.stderr)
+                return 1
         with tty, cancel_on_signals():
-            tty.write("Demo: Pac-Man eats masked password stars.\n")
-            animate(tty, 12)
+            theme_display = chosen_theme['name'] if chosen_theme else 'Random'
+            tty.write(f"Demo ({theme_display}): Pac-Sudo animation.\n")
+            animate(tty, 12, theme=chosen_theme)
         return 0
     if arguments == ["--pacman-help"]:
         print("Use sudo normally. Demo: pac-sudo --demo\n"
