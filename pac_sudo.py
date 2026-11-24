@@ -29,6 +29,131 @@ GREEN = "\x1b[92m"
 MAGENTA = "\x1b[95m"
 WHITE = "\x1b[97m"
 
+_ = None
+K = (20, 20, 20)
+
+# Ghost RGB
+GC = (0, 220, 255)   # Cyan Inky body
+GW = (255, 255, 255) # Eye white
+GB = (0, 50, 220)    # Pupil blue
+
+GHOST_1_GRID = [
+    [_, _, GC, GC, GC, GC, _, _],
+    [_, GC, GC, GC, GC, GC, GC, _],
+    [GC, GW, GW, GC, GW, GW, GC, GC],
+    [GC, GW, GB, GC, GW, GB, GC, GC],
+    [GC, GC, GC, GC, GC, GC, GC, GC],
+    [GC, GC, GC, GC, GC, GC, GC, GC],
+    [GC, GC, GC, GC, GC, GC, GC, GC],
+    [GC, _, GC, _, _, GC, _, GC],
+]
+
+GHOST_2_GRID = [
+    [_, _, GC, GC, GC, GC, _, _],
+    [_, GC, GC, GC, GC, GC, GC, _],
+    [GC, GW, GW, GC, GW, GW, GC, GC],
+    [GC, GW, GB, GC, GW, GB, GC, GC],
+    [GC, GC, GC, GC, GC, GC, GC, GC],
+    [GC, GC, GC, GC, GC, GC, GC, GC],
+    [GC, GC, GC, GC, GC, GC, GC, GC],
+    [_, GC, _, GC, GC, _, GC, _],
+]
+
+# Invader RGB
+IG = (50, 255, 50)
+
+INVADER_1_GRID = [
+    [_, _, IG, _, _, IG, _, _],
+    [_, _, _, IG, IG, _, _, _],
+    [_, _, IG, IG, IG, IG, _, _],
+    [_, IG, IG, _, _, IG, IG, _],
+    [IG, IG, IG, IG, IG, IG, IG, IG],
+    [IG, _, IG, IG, IG, IG, _, IG],
+    [IG, _, IG, _, _, IG, _, IG],
+    [_, _, _, IG, IG, _, _, _],
+]
+
+INVADER_2_GRID = [
+    [_, _, IG, _, _, IG, _, _],
+    [IG, _, _, IG, IG, _, _, IG],
+    [IG, _, IG, IG, IG, IG, _, IG],
+    [IG, IG, IG, _, _, IG, IG, IG],
+    [_, IG, IG, IG, IG, IG, IG, _],
+    [_, _, IG, IG, IG, IG, _, _],
+    [_, IG, _, _, _, _, IG, _],
+    [IG, _, _, _, _, _, _, IG],
+]
+
+# Zelda / Link RGB
+LG = (46, 180, 80)    # Kokiri Green hat & tunic
+LY = (255, 215, 0)    # Gold Triforce / hair
+LS = (255, 205, 160)  # Skin tone
+LSW = (240, 245, 255) # Silver/White Master sword blade
+LSB = (0, 160, 240)   # Blue Master sword hilt/crossguard
+LST = (140, 150, 160) # Grey Pedestal Stone
+LB = (140, 80, 40)    # Brown belt
+
+LINK_GRIP_GRID = [
+    [_, _, _, _, _, LY, LY, _, _, _, _, _],
+    [_, _, _, _, LY, LY, LY, LY, _, _, _, _],
+    [_, _, _, LG, LG, LG, LG, LG, _, _, _, _],
+    [_, _, LG, LG, LS, K, LS, LY, LY, _, _, _],
+    [_, _, LS, LSB, LSB, LSB, LSB, LS, _, _, _, _],
+    [_, _, _, LG, LG, LB, LG, LG, _, _, _, _],
+    [_, LST, LST, LST, LSW, LST, LST, LST, _, _, _, _],
+    [LST, LST, LST, LST, LST, LST, LST, LST, LST, LST, _, _],
+]
+
+LINK_PULL_GRID = [
+    [_, _, _, _, _, LY, LY, _, _, _, _, _],
+    [_, _, _, _, LY, LY, LY, LY, _, _, _, _],
+    [_, _, _, LG, LG, LG, LG, LG, _, _, _, _],
+    [_, _, LG, LS, K, LS, K, LS, LY, _, _, _],
+    [_, LS, LSB, LSB, LSW, LSB, LSB, LS, _, _, _, _],
+    [_, _, _, LG, LG, LB, LG, LG, _, _, _, _],
+    [_, LST, LST, LST, _, LST, LST, LST, _, _, _, _],
+    [LST, LST, LST, LST, LST, LST, LST, LST, LST, LST, _, _],
+]
+
+LINK_DRAWN_GRID = [
+    [_, _, LSW, LSW, LSW, LSW, LSW, LSW, _, _, _, _],
+    [_, _, _, LSB, LSB, LSB, LSB, _, _, _, _, _],
+    [_, _, LS, LG, LG, LG, LG, LS, _, _, _, _],
+    [_, _, LG, LG, LS, K, LS, LY, LY, _, _, _],
+    [_, _, _, LG, LG, LB, LG, LG, _, _, _, _],
+    [_, _, _, LG, LG, LG, LG, LG, _, _, _, _],
+    [_, LST, LST, LST, _, LST, LST, LST, _, _, _, _],
+    [LST, LST, LST, LST, LST, LST, LST, LST, LST, LST, _, _],
+]
+
+def pixel_pair(top, bottom, no_color=False):
+    if top is None and bottom is None:
+        return " "
+    if no_color:
+        return "#"
+    if top is not None and bottom is None:
+        r, g, b = top
+        return f"\x1b[38;2;{r};{g};{b}m▀{RESET}"
+    if top is None and bottom is not None:
+        r, g, b = bottom
+        return f"\x1b[38;2;{r};{g};{b}m▄{RESET}"
+    r1, g1, b1 = top
+    r2, g2, b2 = bottom
+    return f"\x1b[38;2;{r1};{g1};{b1}m\x1b[48;2;{r2};{g2};{b2}m▀{RESET}"
+
+def render_grid(grid, no_color=False):
+    height = len(grid)
+    width = len(grid[0])
+    lines = []
+    for y in range(0, height, 2):
+        row_chars = []
+        for x in range(width):
+            top = grid[y][x]
+            bottom = grid[y + 1][x] if y + 1 < height else None
+            row_chars.append(pixel_pair(top, bottom, no_color=no_color))
+        lines.append("".join(row_chars))
+    return lines
+
 PACMAN_THEME = {
     "name": "pacman",
     "open": (" .---. ", "/ o.-' ", "\\  '-. ", " '---' "),
@@ -39,18 +164,16 @@ PACMAN_THEME = {
 
 GHOST_THEME = {
     "name": "ghost",
-    "open": ("  .-.  ", " (o o) ", " | ~ | ", " '~~'' "),
-    "closed": ("  .-.  ", " (o o) ", " | ~ | ", " ''~~' "),
-    "color": CYAN,
+    "open_grid": GHOST_1_GRID,
+    "closed_grid": GHOST_2_GRID,
     "pellet": "o",
 }
 
 ALIEN_THEME = {
     "name": "alien",
-    "open": ("  /_\\  ", " |o.o| ", " \\_-_/ ", "  ' '  "),
-    "closed": ("  /_\\  ", " |o.o| ", " /---\\ ", "  ^ ^  "),
-    "color": GREEN,
-    "pellet": ".",
+    "open_grid": INVADER_1_GRID,
+    "closed_grid": INVADER_2_GRID,
+    "pellet": "▪",
 }
 
 ZELDA_THEME = {
@@ -220,39 +343,25 @@ def animate(tty, length: int, duration: float = 1.05, theme: dict | None = None)
         if chosen.get("name") == "zelda":
             steps = count + 1
             delay = duration / steps
+            c_yellow = "" if no_color else YELLOW
+            c_cyan = "" if no_color else CYAN
+
             for step in range(steps):
                 progress = step / max(1, count)
-                pellets = "*" * max(0, count - step)
-                c_yellow = "" if no_color else YELLOW
-                c_green = "" if no_color else GREEN
-                c_cyan = "" if no_color else CYAN
-                c_white = "" if no_color else WHITE
-                c_reset = "" if no_color else RESET
-
+                pellets = "•" * max(0, count - step)
                 if progress < 0.45:
-                    wiggle = "/" if step % 2 == 0 else "\\"
-                    lines = [
-                        c_yellow + "       ▲       " + c_reset,
-                        c_green + f"     {wiggle}<'.)/    " + c_reset + c_yellow + pellets + c_reset,
-                        c_cyan + "     |=|=      " + c_reset,
-                        c_white + "   [==|T|==]   " + c_reset,
-                    ]
+                    grid = LINK_GRIP_GRID
+                    msg = c_yellow + pellets + RESET
                 elif progress < 0.85:
-                    wiggle = "\\" if step % 2 == 0 else "/"
-                    lines = [
-                        c_cyan + "      /|\\      " + c_reset,
-                        c_green + f"    {wiggle}<'.'o{wiggle}   " + c_reset + c_yellow + pellets + c_reset,
-                        c_cyan + "     |===|     " + c_reset,
-                        c_white + "   [==|T|==]   " + c_reset,
-                    ]
+                    grid = LINK_PULL_GRID
+                    msg = c_yellow + pellets + RESET
                 else:
-                    flash = c_cyan if step % 2 == 0 else c_yellow
-                    lines = [
-                        flash + "   --<{===+==> " + c_reset,
-                        c_green + "    \\<'.')/    " + c_reset + c_yellow + " ✦ " + c_cyan + "Master Sword!" + c_reset,
-                        c_green + "      |_|      " + c_reset,
-                        c_white + "   [===T===]   " + c_reset,
-                    ]
+                    grid = LINK_DRAWN_GRID
+                    msg = c_yellow + " ✦ " + c_cyan + "Master Sword!" + RESET
+
+                lines = render_grid(grid, no_color=no_color)
+                # Attach pellets/message to row 1
+                lines[1] = lines[1] + "  " + msg
 
                 tty.write("\x1b[4A")
                 for row_text in lines:
@@ -261,20 +370,32 @@ def animate(tty, length: int, duration: float = 1.05, theme: dict | None = None)
                 time.sleep(delay)
             return
 
-        color = "" if no_color else chosen["color"]
-        reset = RESET if color else ""
         pellet_char = chosen.get("pellet", "*")
-        open_sprite = chosen["open"]
-        closed_sprite = chosen["closed"]
-
-        for step in range(count + 1):
-            sprite = open_sprite if step % 2 == 0 else closed_sprite
-            tty.write("\x1b[4A")
-            for row, shape in enumerate(sprite):
-                pellets = pellet_char * (count - step) if row == 1 else ""
-                tty.write("\r\x1b[2K" + " " * step + color + shape + reset + pellets + "\n")
-            tty.flush()
-            time.sleep(duration / (count + 1))
+        if "open_grid" in chosen:
+            open_lines = render_grid(chosen["open_grid"], no_color=no_color)
+            closed_lines = render_grid(chosen["closed_grid"], no_color=no_color)
+            for step in range(count + 1):
+                sprite_lines = open_lines if step % 2 == 0 else closed_lines
+                tty.write("\x1b[4A")
+                for row, line in enumerate(sprite_lines):
+                    pellets = pellet_char * (count - step) if row == 1 else ""
+                    tty.write("\r\x1b[2K" + " " * step + line + " " + pellets + "\n")
+                tty.flush()
+                time.sleep(duration / (count + 1))
+        else:
+            # Classic ASCII sprites (e.g. Pacman)
+            color = "" if no_color else chosen["color"]
+            reset = RESET if color else ""
+            open_sprite = chosen["open"]
+            closed_sprite = chosen["closed"]
+            for step in range(count + 1):
+                sprite = open_sprite if step % 2 == 0 else closed_sprite
+                tty.write("\x1b[4A")
+                for row, shape in enumerate(sprite):
+                    pellets = pellet_char * (count - step) if row == 1 else ""
+                    tty.write("\r\x1b[2K" + " " * step + color + shape + reset + pellets + "\n")
+                tty.flush()
+                time.sleep(duration / (count + 1))
     finally:
         tty.write(RESET + "\x1b[?25h")
         tty.flush()
