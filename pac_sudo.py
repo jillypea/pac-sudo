@@ -8,6 +8,7 @@ from dataclasses import dataclass
 import getpass
 import os
 from pathlib import Path
+import random
 import signal
 import stat
 import subprocess
@@ -23,8 +24,41 @@ ASKPASS = HERE / "pac-sudo-askpass"
 STATE_ENV = "PAC_SUDO_PROMPT_STATE"
 RESET = "\x1b[0m"
 YELLOW = "\x1b[93m"
-OPEN = (" .---. ", "/ o.-' ", "\\  '-. ", " '---' ")
-CLOSED = (" .---. ", "/ o  \\ ", "\\    / ", " '---' ")
+CYAN = "\x1b[96m"
+GREEN = "\x1b[92m"
+MAGENTA = "\x1b[95m"
+WHITE = "\x1b[97m"
+
+PACMAN_THEME = {
+    "name": "pacman",
+    "open": (" .---. ", "/ o.-' ", "\\  '-. ", " '---' "),
+    "closed": (" .---. ", "/ o  \\ ", "\\    / ", " '---' "),
+    "color": YELLOW,
+    "pellet": "*",
+}
+
+GHOST_THEME = {
+    "name": "ghost",
+    "open": ("  .-.  ", " (o o) ", " | ~ | ", " '~~'' "),
+    "closed": ("  .-.  ", " (o o) ", " | ~ | ", " ''~~' "),
+    "color": CYAN,
+    "pellet": "o",
+}
+
+ALIEN_THEME = {
+    "name": "alien",
+    "open": ("  /_\\  ", " |o.o| ", " \\_-_/ ", "  ' '  "),
+    "closed": ("  /_\\  ", " |o.o| ", " /---\\ ", "  ^ ^  "),
+    "color": GREEN,
+    "pellet": ".",
+}
+
+ZELDA_THEME = {
+    "name": "zelda",
+    "special": "master_sword",
+}
+
+THEMES = [PACMAN_THEME, GHOST_THEME, ALIEN_THEME, ZELDA_THEME]
 
 
 @dataclass
@@ -165,27 +199,79 @@ def askpass(prompt: str) -> int:
         return 1
 
 
-def animate(tty, length: int, duration: float = 1.05) -> None:
+def animate(tty, length: int, duration: float = 1.05, theme: dict | None = None) -> None:
     """Draw only to /dev/tty, never to a sudo command's stdout/stderr."""
     try:
         columns = os.get_terminal_size(tty.fileno()).columns or 80
     except OSError:
         columns = 80
     count = min(max(1, length), max(1, columns - 10), 48)
-    color = "" if "NO_COLOR" in os.environ else YELLOW
-    reset = RESET if color else ""
+    chosen = theme or random.choice(THEMES)
+    no_color = "NO_COLOR" in os.environ
+
     if columns < 14:
         tty.write("C *  OK\n")
         tty.flush()
         return
+
     tty.write("\x1b[?25l" + "\n" * 4)
     tty.flush()
     try:
+        if chosen.get("name") == "zelda":
+            steps = count + 1
+            delay = duration / steps
+            for step in range(steps):
+                progress = step / max(1, count)
+                pellets = "*" * max(0, count - step)
+                c_yellow = "" if no_color else YELLOW
+                c_green = "" if no_color else GREEN
+                c_cyan = "" if no_color else CYAN
+                c_white = "" if no_color else WHITE
+                c_reset = "" if no_color else RESET
+
+                if progress < 0.45:
+                    wiggle = "/" if step % 2 == 0 else "\\"
+                    lines = [
+                        c_yellow + "       ▲       " + c_reset,
+                        c_green + f"     {wiggle}<'.)/    " + c_reset + c_yellow + pellets + c_reset,
+                        c_cyan + "     |=|=      " + c_reset,
+                        c_white + "   [==|T|==]   " + c_reset,
+                    ]
+                elif progress < 0.85:
+                    wiggle = "\\" if step % 2 == 0 else "/"
+                    lines = [
+                        c_cyan + "      /|\\      " + c_reset,
+                        c_green + f"    {wiggle}<'.'o{wiggle}   " + c_reset + c_yellow + pellets + c_reset,
+                        c_cyan + "     |===|     " + c_reset,
+                        c_white + "   [==|T|==]   " + c_reset,
+                    ]
+                else:
+                    flash = c_cyan if step % 2 == 0 else c_yellow
+                    lines = [
+                        flash + "   --<{===+==> " + c_reset,
+                        c_green + "    \\<'.')/    " + c_reset + c_yellow + " ✦ " + c_cyan + "Master Sword!" + c_reset,
+                        c_green + "      |_|      " + c_reset,
+                        c_white + "   [===T===]   " + c_reset,
+                    ]
+
+                tty.write("\x1b[4A")
+                for row_text in lines:
+                    tty.write("\r\x1b[2K" + row_text + "\n")
+                tty.flush()
+                time.sleep(delay)
+            return
+
+        color = "" if no_color else chosen["color"]
+        reset = RESET if color else ""
+        pellet_char = chosen.get("pellet", "*")
+        open_sprite = chosen["open"]
+        closed_sprite = chosen["closed"]
+
         for step in range(count + 1):
-            sprite = OPEN if step % 2 == 0 else CLOSED
+            sprite = open_sprite if step % 2 == 0 else closed_sprite
             tty.write("\x1b[4A")
             for row, shape in enumerate(sprite):
-                pellets = "*" * (count - step) if row == 1 else ""
+                pellets = pellet_char * (count - step) if row == 1 else ""
                 tty.write("\r\x1b[2K" + " " * step + color + shape + reset + pellets + "\n")
             tty.flush()
             time.sleep(duration / (count + 1))
@@ -221,6 +307,10 @@ def run(invocation: Invocation, tty) -> int:
             length = int(state.read_text(encoding="ascii"))
             with cancel_on_signals():
                 animate(tty, length)
+        elif not os.environ.get("PAC_SUDO_NO_CACHED_ANIMATION"):
+            # Credentials were valid from cache; show quick sprint animation (~0.35s).
+            with cancel_on_signals():
+                animate(tty, length=8, duration=0.35)
     if invocation.validate_only:
         return 0
     # Keep the same parent PID for validation and execution: sudo can use a

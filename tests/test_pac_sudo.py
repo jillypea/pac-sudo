@@ -167,11 +167,16 @@ class TerminalTests(unittest.TestCase):
                         os.waitpid(pid, 0)
                 os.close(master)
 
+    def assertAnimated(self, output):
+        sprites = [b" .---. ", b"(o o)", b"|o.o|", b"[==|T|==]"]
+        self.assertTrue(any(s in output for s in sprites), f"No animation sprite found in output: {repr(output)}")
+
     def test_success_animates_before_running_original_command(self):
         code, output, files, echo = self.exercise(["whoami"], [b"test-only-secret\n"])
         self.assertEqual(code, 0)
-        self.assertIn(b" .---. ", output)
-        self.assertLess(output.index(b" .---. "), output.index(b"COMMAND_EXECUTED"))
+        self.assertAnimated(output)
+        first_sprite_index = min(output.index(s) for s in [b" .---. ", b"(o o)", b"|o.o|", b"[==|T|==]"] if s in output)
+        self.assertLess(first_sprite_index, output.index(b"COMMAND_EXECUTED"))
         self.assertNotIn(b"test-only-secret", output)
         self.assertEqual(json.loads(files["execution.json"])["args"], ["whoami"])
         self.assertEqual(json.loads(files["execution.json"])["parent"], json.loads(files["validation.json"])["parent"])
@@ -180,7 +185,8 @@ class TerminalTests(unittest.TestCase):
     def test_three_rejected_passwords_never_animate_or_run_command(self):
         code, output, files, echo = self.exercise(["whoami"], [b"wrong-value\n"] * 3)
         self.assertEqual(code, 1)
-        self.assertNotIn(b" .---. ", output)
+        for s in [b" .---. ", b"(o o)", b"|o.o|", b"[==|T|==]"]:
+            self.assertNotIn(s, output)
         self.assertNotIn("execution.json", files)
         self.assertNotIn(b"wrong-value", output)
         self.assertEqual(output.count(b"Sorry, try again."), 3)
@@ -190,38 +196,48 @@ class TerminalTests(unittest.TestCase):
         code, output, files, echo = self.exercise(["whoami"], [b"wrong-value\n", b"test-only-secret\n"])
         self.assertEqual(code, 0)
         self.assertIn(b"Sorry, try again.", output)
-        self.assertIn(b" .---. ", output)
+        self.assertAnimated(output)
         self.assertTrue(echo)
 
-    def test_cached_authentication_has_no_prompt_or_animation(self):
+    def test_cached_authentication_animates_by_default(self):
         code, output, files, echo = self.exercise(["whoami"], environment={"FAKE_SUDO_CACHED": "1"})
+        self.assertEqual(code, 0)
+        self.assertAnimated(output)
+        self.assertIn(b"COMMAND_EXECUTED", output)
+
+    def test_cached_authentication_can_be_disabled(self):
+        code, output, files, echo = self.exercise(["whoami"], environment={
+            "FAKE_SUDO_CACHED": "1",
+            "PAC_SUDO_NO_CACHED_ANIMATION": "1",
+        })
         self.assertEqual(code, 0)
         self.assertEqual(output, b"COMMAND_EXECUTED\r\n")
 
     def test_validation_does_not_execute_a_command(self):
         code, output, files, echo = self.exercise(["-v"], [b"test-only-secret\n"])
         self.assertEqual(code, 0)
-        self.assertIn(b" .---. ", output)
+        self.assertAnimated(output)
         self.assertNotIn("execution.json", files)
 
     def test_failed_command_still_animates_after_successful_password(self):
         code, output, files, echo = self.exercise(["false"], [b"test-only-secret\n"], {"FAKE_SUDO_EXIT": "37"})
         self.assertEqual(code, 37)
-        self.assertIn(b" .---. ", output)
+        self.assertAnimated(output)
 
     def test_pipes_and_redirects_are_preserved(self):
         code, output, files, echo = self.exercise(["cat"], [b"test-only-secret\n"], redirected=True)
         self.assertEqual(code, 0)
         self.assertEqual(files["stdout"], files["stdin"])
         self.assertEqual(files["stderr"], b"")
-        self.assertIn(b" .---. ", output)
+        self.assertAnimated(output)
         self.assertNotIn(b"test-only-secret", b"".join(files.values()) + output)
 
     def test_ctrl_c_restores_echo_and_never_runs_command(self):
         code, output, files, echo = self.exercise(["whoami"], [b"\x03"])
         self.assertNotEqual(code, 0)
         self.assertNotIn("execution.json", files)
-        self.assertNotIn(b" .---. ", output)
+        for s in [b" .---. ", b"(o o)", b"|o.o|", b"[==|T|==]"]:
+            self.assertNotIn(s, output)
         self.assertTrue(echo)
 
     def test_backspace_and_utf8_password(self):
