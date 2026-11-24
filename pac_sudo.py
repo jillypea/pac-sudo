@@ -128,34 +128,45 @@ LINK_DRAWN_GRID = [
     [LST, LST, LST, LST, LST, LST, LST, LST, LST, LST, _, _],
 ]
 
-# Bruce Rivers: Criminal Defense Attorney RGB
-BR_S = (255, 205, 165)  # Skin tone
-BR_K = (25, 25, 30)     # Glasses / microphone dark
-BR_N = (20, 35, 80)     # Navy suit
-BR_W = (245, 245, 250)  # White dress shirt
-BR_R = (210, 30, 35)    # Red tie
-BR_M = (110, 115, 125)  # Mic metal
+# Bruce Rivers: Criminal Defense Attorney RGB (Detailed 24x10)
+BR_S = (255, 205, 165)   # Skin tone
+BR_DS = (215, 165, 130)  # Skin shadow / jaw
+BR_GL = (35, 35, 45)     # Glasses frames / dark tint
+BR_GH = (200, 230, 255)  # Glasses white glint
+BR_N = (20, 35, 75)      # Navy suit
+BR_DN = (12, 22, 50)     # Navy shadow
+BR_W = (245, 245, 250)   # White shirt / pocket square
+BR_R = (210, 25, 35)     # Red tie
+BR_DR = (140, 15, 20)    # Red tie shadow
+BR_MF = (55, 60, 70)     # Mic foam
+BR_MM = (160, 165, 175)  # Mic metal / boom arm
+BR_WD = (100, 60, 30)    # Wood desk / gavel
+BR_GV = (180, 140, 60)   # Gavel brass/gold
 
 BRUCE_LISTEN_GRID = [
-    [_, _, _, BR_S, BR_S, BR_S, BR_S, _, _, _, _, _],
-    [_, _, BR_S, BR_S, BR_S, BR_S, BR_S, BR_S, _, _, _, _],
-    [_, _, BR_S, BR_K, BR_S, BR_K, BR_S, BR_S, _, _, _, _],
-    [_, _, _, BR_S, BR_S, BR_S, BR_S, _, _, _, _, _],
-    [_, BR_N, BR_N, BR_W, BR_R, BR_W, BR_N, BR_N, _, _, _, _],
-    [BR_N, BR_N, BR_N, BR_W, BR_R, BR_W, BR_N, BR_N, BR_N, _, _, _],
-    [BR_N, BR_N, BR_N, BR_N, BR_R, BR_N, BR_N, BR_N, BR_N, _, _, _],
-    [_, BR_M, BR_M, _, _, _, _, BR_M, BR_M, _, _, _],
+    [_, _, _, _, _, _, BR_S, BR_S, BR_S, BR_S, BR_S, BR_S, _, _, _, _, _, _, _, _, _, _, _, _],
+    [_, _, _, _, _, BR_S, BR_S, BR_S, BR_S, BR_S, BR_S, BR_S, BR_S, _, _, _, _, _, _, _, _, _, _, _],
+    [_, _, _, _, BR_S, BR_S, BR_GL, BR_GH, BR_GL, BR_S, BR_GL, BR_GH, BR_GL, BR_S, BR_S, _, _, _, _, _, _, _, _, _],
+    [_, _, _, _, _, BR_S, BR_S, BR_S, BR_DS, BR_DS, BR_S, BR_S, BR_S, _, _, _, _, _, _, _, _, _, _, _],
+    [_, _, _, _, _, _, BR_W, BR_W, BR_R, BR_R, BR_W, BR_W, _, _, _, _, _, _, _, _, _, _, _, _],
+    [_, _, _, _, BR_N, BR_N, BR_N, BR_W, BR_R, BR_DR, BR_W, BR_N, BR_N, BR_N, _, _, _, _, _, BR_MM, BR_MF, BR_MF, _, _],
+    [_, _, _, BR_N, BR_N, BR_N, BR_N, BR_W, BR_R, BR_DR, BR_N, BR_N, BR_W, BR_N, BR_N, _, _, _, BR_MM, BR_MM, BR_MF, BR_MF, _, _],
+    [_, _, BR_N, BR_N, BR_N, BR_N, BR_N, BR_N, BR_R, BR_DR, BR_N, BR_N, BR_N, BR_N, BR_N, BR_N, _, BR_MM, _, _, BR_MM, _, _, _],
+    [_, BR_WD, BR_WD, BR_WD, BR_WD, BR_WD, BR_WD, BR_WD, BR_WD, BR_WD, BR_WD, BR_WD, BR_WD, BR_WD, BR_WD, BR_WD, BR_WD, BR_MM, _, _, BR_MM, _, _, _],
+    [BR_WD, BR_WD, BR_WD, BR_WD, BR_WD, BR_WD, BR_WD, BR_WD, BR_WD, BR_WD, BR_WD, BR_WD, BR_WD, BR_WD, BR_WD, BR_WD, BR_WD, BR_WD, BR_MM, BR_MM, BR_MM, _, _, _],
 ]
 
 BRUCE_POINT_GRID = [
-    [_, _, _, BR_S, BR_S, BR_S, BR_S, _, _, _, _, _],
-    [_, _, BR_S, BR_S, BR_S, BR_S, BR_S, BR_S, _, _, _, _],
-    [_, _, BR_S, BR_K, BR_S, BR_K, BR_S, BR_S, _, _, _, _],
-    [_, _, _, BR_S, BR_K, BR_K, BR_S, _, _, _, _, _],
-    [_, BR_N, BR_N, BR_W, BR_R, BR_W, BR_N, BR_N, BR_S, BR_S, BR_S, _],
-    [BR_N, BR_N, BR_N, BR_W, BR_R, BR_W, BR_N, BR_N, BR_N, _, _, _],
-    [BR_N, BR_N, BR_N, BR_N, BR_R, BR_N, BR_N, BR_N, BR_N, _, _, _],
-    [_, BR_M, BR_M, _, _, _, _, BR_M, BR_M, _, _, _],
+    [_, _, _, _, _, _, BR_S, BR_S, BR_S, BR_S, BR_S, BR_S, _, _, _, _, _, _, _, _, _, _, _, _],
+    [_, _, _, _, _, BR_S, BR_S, BR_S, BR_S, BR_S, BR_S, BR_S, BR_S, _, _, _, _, _, _, _, _, _, _, _],
+    [_, _, _, _, BR_S, BR_S, BR_GL, BR_GH, BR_GL, BR_S, BR_GL, BR_GH, BR_GL, BR_S, BR_S, _, _, _, _, _, _, _, _, _],
+    [_, _, _, _, _, BR_S, BR_S, BR_S, BR_GL, BR_GL, BR_S, BR_S, BR_S, _, _, _, _, _, _, _, _, _, _, _],
+    [_, _, _, _, _, _, BR_W, BR_W, BR_R, BR_R, BR_W, BR_W, _, _, _, _, _, _, _, _, _, _, _, _],
+    [_, _, _, _, BR_N, BR_N, BR_N, BR_W, BR_R, BR_DR, BR_W, BR_N, BR_N, BR_S, BR_S, BR_S, BR_S, BR_S, BR_S, _, _, _, _, _],
+    [_, _, _, BR_N, BR_N, BR_N, BR_N, BR_W, BR_R, BR_DR, BR_N, BR_N, BR_N, BR_S, BR_S, _, _, _, _, _, _, _, _, _],
+    [_, _, BR_N, BR_N, BR_N, BR_N, BR_N, BR_N, BR_R, BR_DR, BR_N, BR_N, BR_N, BR_N, BR_N, BR_N, _, _, _, _, _, _, _, _],
+    [_, BR_WD, BR_WD, BR_WD, BR_WD, BR_WD, BR_WD, BR_WD, BR_WD, BR_WD, BR_WD, BR_WD, BR_WD, BR_WD, BR_WD, BR_WD, BR_WD, BR_GV, BR_GV, _, _, _, _, _],
+    [BR_WD, BR_WD, BR_WD, BR_WD, BR_WD, BR_WD, BR_WD, BR_WD, BR_WD, BR_WD, BR_WD, BR_WD, BR_WD, BR_WD, BR_WD, BR_WD, BR_WD, BR_WD, BR_WD, BR_WD, BR_WD, _, _, _],
 ]
 
 def pixel_pair(top, bottom, no_color=False):
@@ -527,6 +538,8 @@ def animate(tty, length: int, duration: float = 1.05, theme: dict | None = None)
             c_yellow = "" if no_color else YELLOW
             c_cyan = "" if no_color else CYAN
 
+            # 5 lines high (10 pixels tall): reserve 5 lines
+            tty.write("\n")
             for step in range(steps):
                 progress = step / max(1, count)
                 pellets = "•" * max(0, count - step)
@@ -540,7 +553,7 @@ def animate(tty, length: int, duration: float = 1.05, theme: dict | None = None)
                 lines = render_grid(grid, no_color=no_color)
                 lines[1] = lines[1] + "  " + msg
 
-                tty.write("\x1b[4A")
+                tty.write("\x1b[5A")
                 for row_text in lines:
                     tty.write("\r\x1b[2K" + row_text + "\n")
                 tty.flush()
