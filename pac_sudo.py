@@ -128,6 +128,36 @@ LINK_DRAWN_GRID = [
     [LST, LST, LST, LST, LST, LST, LST, LST, LST, LST, _, _],
 ]
 
+# Bruce Rivers: Criminal Defense Attorney RGB
+BR_S = (255, 205, 165)  # Skin tone
+BR_K = (25, 25, 30)     # Glasses / microphone dark
+BR_N = (20, 35, 80)     # Navy suit
+BR_W = (245, 245, 250)  # White dress shirt
+BR_R = (210, 30, 35)    # Red tie
+BR_M = (110, 115, 125)  # Mic metal
+
+BRUCE_LISTEN_GRID = [
+    [_, _, _, BR_S, BR_S, BR_S, BR_S, _, _, _, _, _],
+    [_, _, BR_S, BR_S, BR_S, BR_S, BR_S, BR_S, _, _, _, _],
+    [_, _, BR_S, BR_K, BR_S, BR_K, BR_S, BR_S, _, _, _, _],
+    [_, _, _, BR_S, BR_S, BR_S, BR_S, _, _, _, _, _],
+    [_, BR_N, BR_N, BR_W, BR_R, BR_W, BR_N, BR_N, _, _, _, _],
+    [BR_N, BR_N, BR_N, BR_W, BR_R, BR_W, BR_N, BR_N, BR_N, _, _, _],
+    [BR_N, BR_N, BR_N, BR_N, BR_R, BR_N, BR_N, BR_N, BR_N, _, _, _],
+    [_, BR_M, BR_M, _, _, _, _, BR_M, BR_M, _, _, _],
+]
+
+BRUCE_POINT_GRID = [
+    [_, _, _, BR_S, BR_S, BR_S, BR_S, _, _, _, _, _],
+    [_, _, BR_S, BR_S, BR_S, BR_S, BR_S, BR_S, _, _, _, _],
+    [_, _, BR_S, BR_K, BR_S, BR_K, BR_S, BR_S, _, _, _, _],
+    [_, _, _, BR_S, BR_K, BR_K, BR_S, _, _, _, _, _],
+    [_, BR_N, BR_N, BR_W, BR_R, BR_W, BR_N, BR_N, BR_S, BR_S, BR_S, _],
+    [BR_N, BR_N, BR_N, BR_W, BR_R, BR_W, BR_N, BR_N, BR_N, _, _, _],
+    [BR_N, BR_N, BR_N, BR_N, BR_R, BR_N, BR_N, BR_N, BR_N, _, _, _],
+    [_, BR_M, BR_M, _, _, _, _, BR_M, BR_M, _, _, _],
+]
+
 def pixel_pair(top, bottom, no_color=False):
     if top is None and bottom is None:
         return " "
@@ -299,8 +329,14 @@ ZELDA_THEME = {
     "special": "master_sword",
 }
 
+BRUCE_THEME = {
+    "name": "bruce",
+    "special": "bruce_rivers",
+}
+
 THEMES = [
     PACMAN_THEME,
+    BRUCE_THEME,
     KIRBY_THEME,
     SONIC_THEME,
     GOOSE_THEME,
@@ -480,6 +516,33 @@ def animate(tty, length: int, duration: float = 1.05, theme: dict | None = None)
                 tty.write("\r\x1b[2K" + "\n")
                 tty.write("\r\x1b[2K" + "\n")
                 tty.write("\r\x1b[2K" + "\n")
+                tty.flush()
+                time.sleep(delay)
+            return
+
+        if chosen.get("name") == "bruce":
+            steps = count + 1
+            delay = duration / steps
+            c_red = "" if no_color else "\x1b[91m"
+            c_yellow = "" if no_color else YELLOW
+            c_cyan = "" if no_color else CYAN
+
+            for step in range(steps):
+                progress = step / max(1, count)
+                pellets = "•" * max(0, count - step)
+                if progress < 0.7:
+                    grid = BRUCE_LISTEN_GRID
+                    msg = c_cyan + pellets + RESET
+                else:
+                    grid = BRUCE_POINT_GRID
+                    msg = c_red + " ⚖️ STOP SELF-SNITCHING! " + c_yellow + "CLINK CLINK! 🔒" + RESET
+
+                lines = render_grid(grid, no_color=no_color)
+                lines[1] = lines[1] + "  " + msg
+
+                tty.write("\x1b[4A")
+                for row_text in lines:
+                    tty.write("\r\x1b[2K" + row_text + "\n")
                 tty.flush()
                 time.sleep(delay)
             return
