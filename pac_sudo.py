@@ -162,6 +162,46 @@ PACMAN_THEME = {
     "pellet": "*",
 }
 
+KIRBY_THEME = {
+    "name": "kirby",
+    "open": ("        ", " (>'.')>", " (____) ", "  '' '' "),
+    "closed": ("        ", " (<'.'o)", " (____) ", "  '' '' "),
+    "color": MAGENTA,
+    "pellet": "★",
+}
+
+SONIC_THEME = {
+    "name": "sonic",
+    "open": ("  .---.  ", " / @@@ \\ ", " \\ @@@ / ", "  '---'  "),
+    "closed": ("  .---.  ", " / ### \\ ", " \\ ### / ", "  '---'  "),
+    "color": CYAN,
+    "pellet": "o",
+}
+
+GOOSE_THEME = {
+    "name": "goose",
+    "open": ("  >(o )___ ", "   ( ._> / ", "    `---'  ", "     / |   "),
+    "closed": ("  >(o )___ ", "   ( ._> / ", "    `---'  ", "     | \\   "),
+    "color": WHITE,
+    "pellet": "honk!",
+}
+
+MAGE_THEME = {
+    "name": "mage",
+    "open": ("   /\\    ", "  |* *|  ", "  /|_|\\  ", "   ' '   "),
+    "closed": ("   /\\    ", "  |o o|  ", "  /|_|\\  ", "   ' '   "),
+    "color": YELLOW,
+    "pellet": "🔥",
+}
+
+NYAN_THEME = {
+    "name": "nyan",
+    "open": (" +_,-._+ ", " |[:::'] ", " |[::: ] ", "  -   -  "),
+    "closed": ("  +_,-.+ ", " |[::: ] ", " |[:::'] ", "   - -   "),
+    "color": MAGENTA,
+    "pellet": "≈",
+}
+
 GHOST_THEME = {
     "name": "ghost",
     "open_grid": GHOST_1_GRID,
@@ -181,7 +221,17 @@ ZELDA_THEME = {
     "special": "master_sword",
 }
 
-THEMES = [PACMAN_THEME, GHOST_THEME, ALIEN_THEME, ZELDA_THEME]
+THEMES = [
+    PACMAN_THEME,
+    KIRBY_THEME,
+    SONIC_THEME,
+    GOOSE_THEME,
+    MAGE_THEME,
+    NYAN_THEME,
+    GHOST_THEME,
+    ALIEN_THEME,
+    ZELDA_THEME,
+]
 
 
 @dataclass

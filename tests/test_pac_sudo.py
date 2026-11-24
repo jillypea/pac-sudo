@@ -167,19 +167,26 @@ class TerminalTests(unittest.TestCase):
                         os.waitpid(pid, 0)
                 os.close(master)
 
+    THEME_SIGNATURES = [
+        b" .---. ",   # Pacman
+        b"(>'.')>",   # Kirby
+        b"@@@",       # Sonic
+        b">(o )___",  # Goose
+        b"|* *|",     # Mage
+        b"|[:::']",   # Nyan
+        b"\xe2\x96\x80", # Half-block top (Ghost, Alien, Zelda)
+        b"\xe2\x96\x84", # Half-block bottom
+    ]
+
     def assertAnimated(self, output):
-        has_pacman = b" .---. " in output
-        has_pixel = b"\xe2\x96\x80" in output or b"\xe2\x96\x84" in output
-        self.assertTrue(has_pacman or has_pixel, f"No animation sprite found in output: {repr(output)}")
+        has_any = any(sig in output for sig in self.THEME_SIGNATURES)
+        self.assertTrue(has_any, f"No animation sprite found in output: {repr(output)}")
 
     def test_success_animates_before_running_original_command(self):
         code, output, files, echo = self.exercise(["whoami"], [b"test-only-secret\n"])
         self.assertEqual(code, 0)
         self.assertAnimated(output)
-        first_sprite_indices = []
-        for marker in (b" .---. ", b"\xe2\x96\x80", b"\xe2\x96\x84"):
-            if marker in output:
-                first_sprite_indices.append(output.index(marker))
+        first_sprite_indices = [output.index(sig) for sig in self.THEME_SIGNATURES if sig in output]
         self.assertLess(min(first_sprite_indices), output.index(b"COMMAND_EXECUTED"))
         self.assertNotIn(b"test-only-secret", output)
         self.assertEqual(json.loads(files["execution.json"])["args"], ["whoami"])
@@ -189,9 +196,8 @@ class TerminalTests(unittest.TestCase):
     def test_three_rejected_passwords_never_animate_or_run_command(self):
         code, output, files, echo = self.exercise(["whoami"], [b"wrong-value\n"] * 3)
         self.assertEqual(code, 1)
-        self.assertNotIn(b" .---. ", output)
-        self.assertNotIn(b"\xe2\x96\x80", output)
-        self.assertNotIn(b"\xe2\x96\x84", output)
+        for sig in self.THEME_SIGNATURES:
+            self.assertNotIn(sig, output)
         self.assertNotIn("execution.json", files)
         self.assertNotIn(b"wrong-value", output)
         self.assertEqual(output.count(b"Sorry, try again."), 3)
@@ -241,9 +247,8 @@ class TerminalTests(unittest.TestCase):
         code, output, files, echo = self.exercise(["whoami"], [b"\x03"])
         self.assertNotEqual(code, 0)
         self.assertNotIn("execution.json", files)
-        self.assertNotIn(b" .---. ", output)
-        self.assertNotIn(b"\xe2\x96\x80", output)
-        self.assertNotIn(b"\xe2\x96\x84", output)
+        for sig in self.THEME_SIGNATURES:
+            self.assertNotIn(sig, output)
         self.assertTrue(echo)
 
     def test_backspace_and_utf8_password(self):
